@@ -546,7 +546,7 @@ function formatTime(seconds) {
 
 function startTimer() {
   clearInterval(state.timerId);
-  state.remainingSeconds = 30 * 60;
+  state.remainingSeconds = 40 * 60;
   timer.textContent = formatTime(state.remainingSeconds);
   state.timerId = setInterval(() => {
     state.remainingSeconds -= 1;
