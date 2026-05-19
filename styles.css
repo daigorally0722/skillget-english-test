@@ -678,3 +678,119 @@ h3 {
     grid-template-columns: 92px 1fr 44px;
   }
 }
+
+/* ── Answer Review ── */
+.review-section {
+  max-width: 860px;
+  margin: 48px auto 0;
+  padding: 0 24px 64px;
+}
+
+.review-heading {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-card {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 18px 20px;
+  border-left: 5px solid var(--line);
+  box-shadow: 0 2px 12px rgba(16,26,22,0.06);
+}
+
+.review-card.is-correct  { border-left-color: #00a878; }
+.review-card.is-wrong    { border-left-color: #e54b35; }
+.review-card.is-unanswered { border-left-color: #bbb; opacity: 0.75; }
+
+.review-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.review-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--muted);
+  min-width: 32px;
+}
+
+.review-skill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--paper);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.review-icon {
+  margin-left: auto;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.review-card.is-correct  .review-icon { color: #00a878; }
+.review-card.is-wrong    .review-icon { color: #e54b35; }
+.review-card.is-unanswered .review-icon { color: #999; }
+
+.review-prompt {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 14px;
+  color: var(--ink);
+}
+
+.review-options {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.review-option {
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--muted);
+  border: 1.5px solid transparent;
+}
+
+.review-option.is-correct-answer {
+  background: #e6f9f3;
+  color: #006b4e;
+  border-color: #00a878;
+  font-weight: 700;
+}
+
+.review-option.is-selected-wrong {
+  background: #fdecea;
+  color: #b03020;
+  border-color: #e54b35;
+  font-weight: 700;
+  text-decoration: line-through;
+}
+
+.review-unanswered-note {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 8px 0 0;
+}
+
+@media (max-width: 600px) {
+  .review-section { padding: 0 16px 48px; }
+  .review-card { padding: 14px 16px; }
+}

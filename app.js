@@ -566,8 +566,11 @@ function calculateResult() {
   const skillStats = {};
   const missedLevels = {};
 
+  const details = [];
+
   QUESTIONS.forEach((question, index) => {
-    const selected = Number(state.answers.get(index));
+    const raw = state.answers.get(index);
+    const selected = raw !== undefined ? Number(raw) : null;
     const correct = selected === question.answer;
     if (!skillStats[question.skill]) {
       skillStats[question.skill] = { earned: 0, max: 0 };
@@ -579,6 +582,7 @@ function calculateResult() {
     } else {
       missedLevels[question.level] = (missedLevels[question.level] || 0) + 1;
     }
+    details.push({ question, index, selected, correct });
   });
 
   const score = Math.round((earned / maxPoints) * 100);
@@ -590,6 +594,7 @@ function calculateResult() {
     level: getResultLevel(score),
     skillStats,
     missedLevels,
+    details,
     completedAt: new Date(),
     answered: state.answers.size,
   };
@@ -676,6 +681,37 @@ function renderResult(result) {
     .join("");
 
   drawScore(result.score);
+  renderAnswerReview(result);
+}
+
+function renderAnswerReview(result) {
+  document.querySelector("#answer-review").innerHTML = result.details.map(({ question, index, selected, correct }) => {
+    const unanswered = selected === null;
+    const cardClass = unanswered ? "review-card is-unanswered" : correct ? "review-card is-correct" : "review-card is-wrong";
+    const icon = unanswered ? "−" : correct ? "✓" : "✗";
+
+    const optionsHtml = question.options.map((opt, i) => {
+      let cls = "review-option";
+      if (i === question.answer) cls += " is-correct-answer";
+      if (!unanswered && i === selected && !correct) cls += " is-selected-wrong";
+      return `<span class="${cls}">${opt}</span>`;
+    }).join("");
+
+    const promptText = question.prompt.replace(/\n/g, "<br>");
+
+    return `
+      <div class="${cardClass}">
+        <div class="review-meta">
+          <span class="review-num">Q${index + 1}</span>
+          <span class="review-skill">${question.skill} · ${question.level}</span>
+          <span class="review-icon">${icon}</span>
+        </div>
+        <p class="review-prompt">${promptText}</p>
+        <div class="review-options">${optionsHtml}</div>
+        ${unanswered ? '<p class="review-unanswered-note">未回答</p>' : ""}
+      </div>
+    `;
+  }).join("");
 }
 
 function submitTest({ force = false } = {}) {
