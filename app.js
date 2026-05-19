@@ -418,7 +418,7 @@ const LEVELS = [
 ];
 
 const AUDIO_VERSION = "20260518-elllo-1";
-const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbx5ltpf9oSepn6Pw1WRi-tRE8dAymY1eLNmE9OeiI-epGffJrDoeO73Lyo5_n1Rqzk_4g/exec";
+const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzkzwfHvoMetCZ4gYd-OUeGm_-T_YX6xAXmIwBPBR2V2rS5bYDicQPB0l2D1pDryqiiCw/exec";
 const audioCache = new Map();
 
 const state = {
@@ -725,7 +725,7 @@ function sendResultToSheet(result) {
   fetch(SHEET_WEBHOOK, {
     method: "POST",
     mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "text/plain" },
     body: JSON.stringify({
       date,
       name: result.name,
