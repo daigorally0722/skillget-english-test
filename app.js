@@ -418,6 +418,7 @@ const LEVELS = [
 ];
 
 const AUDIO_VERSION = "20260518-elllo-1";
+const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbx5ltpf9oSepn6Pw1WRi-tRE8dAymY1eLNmE9OeiI-epGffJrDoeO73Lyo5_n1Rqzk_4g/exec";
 const audioCache = new Map();
 
 const state = {
@@ -714,6 +715,27 @@ function renderAnswerReview(result) {
   }).join("");
 }
 
+function sendResultToSheet(result) {
+  const date = result.completedAt.toLocaleDateString("ja-JP", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+  });
+  const skills = Object.entries(result.skillStats)
+    .map(([skill, stat]) => `${skill}:${Math.round((stat.earned / stat.max) * 100)}`)
+    .join(" / ");
+  fetch(SHEET_WEBHOOK, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      date,
+      name: result.name,
+      score: result.score,
+      cefr: result.level.level,
+      skills,
+    }),
+  }).catch(() => {});
+}
+
 function submitTest({ force = false } = {}) {
   if (!force && state.answers.size < QUESTIONS.length) {
     missingMessage.textContent = `未回答が ${QUESTIONS.length - state.answers.size} 問あります。すべて回答してから採点できます。`;
@@ -726,6 +748,7 @@ function submitTest({ force = false } = {}) {
   }
   state.latestResult = calculateResult();
   renderResult(state.latestResult);
+  sendResultToSheet(state.latestResult);
   showScreen(resultScreen);
 }
 
