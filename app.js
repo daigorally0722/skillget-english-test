@@ -736,22 +736,12 @@ async function sendResultToSheet(result) {
     selectedOption: selected !== null ? question.options[selected] : null,
   }));
 
-  const docLinkEl = document.querySelector("#doc-link");
-  if (docLinkEl) docLinkEl.textContent = "送信中…";
-
-  try {
-    const res = await fetch(SHEET_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, details }),
-    });
-    const json = await res.json();
-    if (docLinkEl && json.docUrl) {
-      docLinkEl.innerHTML = `<a href="${json.docUrl}" target="_blank" rel="noopener">📄 回答用紙を開く</a>`;
-    }
-  } catch {
-    if (docLinkEl) docLinkEl.textContent = "";
-  }
+  fetch(SHEET_WEBHOOK, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, details }),
+  }).catch(() => {});
 }
 
 function submitTest({ force = false } = {}) {
