@@ -715,7 +715,7 @@ function renderAnswerReview(result) {
   }).join("");
 }
 
-function sendResultToSheet(result) {
+async function sendResultToSheet(result) {
   const date = result.completedAt.toLocaleDateString("ja-JP", {
     year: "numeric", month: "2-digit", day: "2-digit",
   });
@@ -731,19 +731,23 @@ function sendResultToSheet(result) {
     correctOption: question.options[question.answer],
     selectedOption: selected !== null ? question.options[selected] : null,
   }));
-  fetch(SHEET_WEBHOOK, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({
-      date,
-      name: result.name,
-      score: result.score,
-      cefr: result.level.level,
-      skills,
-      details,
-    }),
-  }).catch(() => {});
+
+  const docLinkEl = document.querySelector("#doc-link");
+  if (docLinkEl) docLinkEl.textContent = "送信中…";
+
+  try {
+    const res = await fetch(SHEET_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, details }),
+    });
+    const json = await res.json();
+    if (docLinkEl && json.docUrl) {
+      docLinkEl.innerHTML = `<a href="${json.docUrl}" target="_blank" rel="noopener">📄 回答用紙を開く</a>`;
+    }
+  } catch {
+    if (docLinkEl) docLinkEl.textContent = "";
+  }
 }
 
 function submitTest({ force = false } = {}) {

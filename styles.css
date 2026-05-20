@@ -794,3 +794,24 @@ h3 {
   .review-section { padding: 0 16px 48px; }
   .review-card { padding: 14px 16px; }
 }
+
+/* ── Doc Link ── */
+.doc-link {
+  margin: 16px 0 8px;
+  min-height: 36px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.doc-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #e8f4ff;
+  color: #1a5faa;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1.5px solid #aaccee;
+}
+.doc-link a:hover { background: #d0e8ff; }
