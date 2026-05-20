@@ -418,7 +418,7 @@ const LEVELS = [
 ];
 
 const AUDIO_VERSION = "20260518-elllo-1";
-const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbzkzwfHvoMetCZ4gYd-OUeGm_-T_YX6xAXmIwBPBR2V2rS5bYDicQPB0l2D1pDryqiiCw/exec";
+const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwl5sBFwEh4cq5LQnopsvRYWVp79B7ic8vc60IdSfOIRfb9pIsQjuTALOrWBDWryuAWDw/exec";
 const audioCache = new Map();
 
 const state = {
@@ -600,6 +600,7 @@ function calculateResult() {
     missedLevels,
     details,
     completedAt,
+    elapsed: elapsedSec,
     timeTaken,
     answered: state.answers.size,
   };
@@ -667,6 +668,7 @@ function renderResult(result) {
   document.querySelector("#cefr-badge").textContent = result.level.level;
   document.querySelector("#score-line").textContent = `${result.score} / 100`;
   document.querySelector("#summary-line").textContent = `${result.level.label}: ${result.level.summary}`;
+  document.querySelector("#elapsed-time").textContent = `所要時間: ${result.timeTaken}`;
 
   document.querySelector("#skill-breakdown").innerHTML = Object.entries(result.skillStats)
     .map(([skill, stat]) => {
@@ -740,7 +742,7 @@ async function sendResultToSheet(result) {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, details }),
+    body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, elapsed: result.elapsed, details }),
   }).catch(() => {});
 }
 
