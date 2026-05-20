@@ -722,6 +722,15 @@ function sendResultToSheet(result) {
   const skills = Object.entries(result.skillStats)
     .map(([skill, stat]) => `${skill}:${Math.round((stat.earned / stat.max) * 100)}`)
     .join(" / ");
+  const details = result.details.map(({ question, index, selected, correct }) => ({
+    index,
+    skill: question.skill,
+    level: question.level,
+    prompt: question.prompt,
+    correct,
+    correctOption: question.options[question.answer],
+    selectedOption: selected !== null ? question.options[selected] : null,
+  }));
   fetch(SHEET_WEBHOOK, {
     method: "POST",
     mode: "no-cors",
@@ -732,6 +741,7 @@ function sendResultToSheet(result) {
       score: result.score,
       cefr: result.level.level,
       skills,
+      details,
     }),
   }).catch(() => {});
 }
