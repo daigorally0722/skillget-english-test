@@ -1,5 +1,5 @@
 // スプレッドシートID（シートのURLから取得してここに貼る）
-const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+const SPREADSHEET_ID = "1elXmSJuJJ2dn3uEcjW_1RnIRB2yvQ0hEyvacusTZroo";
 
 // Google ドキュメントを保存するフォルダID（省略時はマイドライブ直下）
 const DOC_FOLDER_ID = "";

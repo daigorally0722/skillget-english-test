@@ -418,7 +418,7 @@ const LEVELS = [
 ];
 
 const AUDIO_VERSION = "20260518-elllo-1";
-const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwl5sBFwEh4cq5LQnopsvRYWVp79B7ic8vc60IdSfOIRfb9pIsQjuTALOrWBDWryuAWDw/exec";
+const SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbwJd0EIRjw6bTfKSG6meIREMBXTQonfBN3x8d66xz9n_VifCNHnTqfGlydCim_68KEJ/exec";
 const audioCache = new Map();
 
 const state = {
