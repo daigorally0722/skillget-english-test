@@ -1,8 +1,15 @@
-// スプレッドシートID（シートのURLから取得してここに貼る）
 const SPREADSHEET_ID = "1elXmSJuJJ2dn3uEcjW_1RnIRB2yvQ0hEyvacusTZroo";
-
-// Google ドキュメントを保存するフォルダID（省略時はマイドライブ直下）
+const SHEET_GID = 1267944264;
 const DOC_FOLDER_ID = "";
+
+// 初回に一度だけ実行して権限を承認する
+function setup() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  Logger.log("接続OK: " + ss.getName());
+  const doc = DocumentApp.create("__setup_test__");
+  DriveApp.getFileById(doc.getId()).setTrashed(true);
+  Logger.log("権限承認完了");
+}
 
 function doPost(e) {
   try {
@@ -22,22 +29,21 @@ function doPost(e) {
 // ── スプレッドシートへの書き込み ──────────────────────────────────────
 function appendToSheet(data, docUrl) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheets()[0];
+  const sheet = ss.getSheets().find(s => s.getSheetId() === SHEET_GID) || ss.getSheets()[0];
 
-  // ヘッダーがなければ追加
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(["日付", "名前", "スコア", "CEFR", "技能別", "所要時間", "結果ドキュメント"]);
     sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
   }
 
   sheet.appendRow([
-    data.date,                    // A: 日付
-    data.name,                    // B: 名前
-    data.score,                   // C: スコア
-    data.cefr,                    // D: CEFR
-    data.skills,                  // E: 技能別スコア
-    data.timeTaken || formatElapsed(data.elapsed),  // F: 所要時間
-    docUrl,                       // G: Google Doc URL
+    data.date,
+    data.name,
+    data.score,
+    data.cefr,
+    data.skills,
+    data.timeTaken || formatElapsed(data.elapsed),
+    docUrl,
   ]);
 }
 
@@ -52,11 +58,9 @@ function createResultDoc(data) {
   const doc = DocumentApp.create(title);
   const body = doc.getBody();
 
-  // タイトル
   body.appendParagraph(title)
     .setHeading(DocumentApp.ParagraphHeading.TITLE);
 
-  // サマリー
   body.appendParagraph("テスト結果サマリー")
     .setHeading(DocumentApp.ParagraphHeading.HEADING1);
 
@@ -69,12 +73,10 @@ function createResultDoc(data) {
   ]);
   summaryTable.setBorderWidth(1);
 
-  // 技能別スコア
   body.appendParagraph("技能別スコア")
     .setHeading(DocumentApp.ParagraphHeading.HEADING1);
   body.appendParagraph(data.skills || "");
 
-  // 答え合わせ
   if (data.details && data.details.length > 0) {
     body.appendParagraph("答え合わせ")
       .setHeading(DocumentApp.ParagraphHeading.HEADING1);
@@ -96,27 +98,24 @@ function createResultDoc(data) {
     const reviewTable = body.appendTable(tableData);
     reviewTable.setBorderWidth(1);
 
-    // ヘッダー行を太字
     const headerTableRow = reviewTable.getRow(0);
     for (let c = 0; c < headerRow.length; c++) {
       headerTableRow.getCell(c).getChild(0).asParagraph().setBold(true);
     }
 
-    // 正誤セルに色をつける
     for (let r = 1; r < tableData.length; r++) {
       const cell = reviewTable.getRow(r).getCell(4);
       const text = cell.getText();
       if (text === "○") {
-        cell.setBackgroundColor("#d9ead3"); // 緑
+        cell.setBackgroundColor("#d9ead3");
       } else if (text === "✗") {
-        cell.setBackgroundColor("#fce5cd"); // 赤
+        cell.setBackgroundColor("#fce5cd");
       }
     }
   }
 
   doc.saveAndClose();
 
-  // フォルダ指定があれば移動
   if (DOC_FOLDER_ID) {
     const file = DriveApp.getFileById(doc.getId());
     DriveApp.getFolderById(DOC_FOLDER_ID).addFile(file);

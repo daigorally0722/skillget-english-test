@@ -738,20 +738,12 @@ async function sendResultToSheet(result) {
     selectedOption: selected !== null ? question.options[selected] : null,
   }));
 
-  try {
-    const res = await fetch(SHEET_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, elapsed: result.elapsed, details }),
-    });
-    const json = await res.json();
-    if (json.docUrl) {
-      document.querySelector("#doc-link").innerHTML =
-        `<a href="${json.docUrl}" target="_blank" rel="noopener">📄 テスト結果ドキュメントを開く</a>`;
-    }
-  } catch {
-    // ネットワークエラー時は無視
-  }
+  fetch(SHEET_WEBHOOK, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, elapsed: result.elapsed, details }),
+  }).catch(() => {});
 }
 
 function submitTest({ force = false } = {}) {
