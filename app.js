@@ -587,6 +587,9 @@ function calculateResult() {
   });
 
   const score = Math.round((earned / maxPoints) * 100);
+  const completedAt = new Date();
+  const elapsedSec = state.startedAt ? Math.floor((completedAt - state.startedAt) / 1000) : 0;
+  const timeTaken = `${Math.floor(elapsedSec / 60)}分${String(elapsedSec % 60).padStart(2, "0")}秒`;
   return {
     name: document.querySelector("#participant-name").value.trim() || "Anonymous",
     score,
@@ -596,7 +599,8 @@ function calculateResult() {
     skillStats,
     missedLevels,
     details,
-    completedAt: new Date(),
+    completedAt,
+    timeTaken,
     answered: state.answers.size,
   };
 }
@@ -739,7 +743,7 @@ async function sendResultToSheet(result) {
     const res = await fetch(SHEET_WEBHOOK, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, details }),
+      body: JSON.stringify({ date, name: result.name, score: result.score, cefr: result.level.level, skills, timeTaken: result.timeTaken, details }),
     });
     const json = await res.json();
     if (docLinkEl && json.docUrl) {
