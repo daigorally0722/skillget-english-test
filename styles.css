@@ -520,6 +520,41 @@ h3 {
   accent-color: var(--accent);
 }
 
+.skip-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.skip-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+
+.skip-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 117, 111, 0.05);
+}
+
+.question-card.is-skipped {
+  opacity: 0.55;
+}
+
+.question-card.is-skipped .skip-button {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  background: rgba(255, 90, 67, 0.05);
+}
+
 .submit-row {
   position: sticky;
   bottom: 0;
@@ -716,9 +751,10 @@ h3 {
   box-shadow: 0 2px 12px rgba(16,26,22,0.06);
 }
 
-.review-card.is-correct  { border-left-color: #00a878; }
-.review-card.is-wrong    { border-left-color: #e54b35; }
+.review-card.is-correct    { border-left-color: #00a878; }
+.review-card.is-wrong      { border-left-color: #e54b35; }
 .review-card.is-unanswered { border-left-color: #bbb; opacity: 0.75; }
+.review-card.is-skipped    { border-left-color: #b08a00; opacity: 0.8; }
 
 .review-meta {
   display: flex;
@@ -750,9 +786,10 @@ h3 {
   line-height: 1;
 }
 
-.review-card.is-correct  .review-icon { color: #00a878; }
-.review-card.is-wrong    .review-icon { color: #e54b35; }
+.review-card.is-correct    .review-icon { color: #00a878; }
+.review-card.is-wrong      .review-icon { color: #e54b35; }
 .review-card.is-unanswered .review-icon { color: #999; }
+.review-card.is-skipped    .review-icon { color: #b08a00; }
 
 .review-prompt {
   font-size: 0.9rem;

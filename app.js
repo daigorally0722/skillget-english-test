@@ -481,7 +481,7 @@ function renderQuestions() {
       .join("");
 
     return `
-      <article class="question-card">
+      <article class="question-card" data-card-index="${index}">
         <div class="question-meta">
           <span>Q${index + 1} / ${QUESTIONS.length}</span>
           <span>${question.skill} · ${question.level}</span>
@@ -489,6 +489,9 @@ function renderQuestions() {
         <p class="question-text">${question.prompt}</p>
         ${listeningControl}
         <div class="options">${options}</div>
+        <div class="skip-row">
+          <button class="skip-button" type="button" data-skip-index="${index}">わからない</button>
+        </div>
       </article>
     `;
   }).join("");
@@ -571,8 +574,9 @@ function calculateResult() {
 
   QUESTIONS.forEach((question, index) => {
     const raw = state.answers.get(index);
-    const selected = raw !== undefined ? Number(raw) : null;
-    const correct = selected === question.answer;
+    const skipped = raw === "skip";
+    const selected = (!skipped && raw !== undefined) ? Number(raw) : null;
+    const correct = !skipped && selected === question.answer;
     if (!skillStats[question.skill]) {
       skillStats[question.skill] = { earned: 0, max: 0 };
     }
@@ -583,7 +587,7 @@ function calculateResult() {
     } else {
       missedLevels[question.level] = (missedLevels[question.level] || 0) + 1;
     }
-    details.push({ question, index, selected, correct });
+    details.push({ question, index, selected, correct, skipped });
   });
 
   const score = Math.round((earned / maxPoints) * 100);
@@ -692,15 +696,31 @@ function renderResult(result) {
 }
 
 function renderAnswerReview(result) {
-  document.querySelector("#answer-review").innerHTML = result.details.map(({ question, index, selected, correct }) => {
-    const unanswered = selected === null;
-    const cardClass = unanswered ? "review-card is-unanswered" : correct ? "review-card is-correct" : "review-card is-wrong";
-    const icon = unanswered ? "−" : correct ? "✓" : "✗";
+  document.querySelector("#answer-review").innerHTML = result.details.map(({ question, index, selected, correct, skipped }) => {
+    const unanswered = selected === null && !skipped;
+    let cardClass, icon, note;
+    if (skipped) {
+      cardClass = "review-card is-skipped";
+      icon = "?";
+      note = '<p class="review-unanswered-note">スキップ（わからない）</p>';
+    } else if (unanswered) {
+      cardClass = "review-card is-unanswered";
+      icon = "−";
+      note = '<p class="review-unanswered-note">未回答</p>';
+    } else if (correct) {
+      cardClass = "review-card is-correct";
+      icon = "✓";
+      note = "";
+    } else {
+      cardClass = "review-card is-wrong";
+      icon = "✗";
+      note = "";
+    }
 
     const optionsHtml = question.options.map((opt, i) => {
       let cls = "review-option";
       if (i === question.answer) cls += " is-correct-answer";
-      if (!unanswered && i === selected && !correct) cls += " is-selected-wrong";
+      if (!skipped && !unanswered && i === selected && !correct) cls += " is-selected-wrong";
       return `<span class="${cls}">${opt}</span>`;
     }).join("");
 
@@ -715,7 +735,7 @@ function renderAnswerReview(result) {
         </div>
         <p class="review-prompt">${promptText}</p>
         <div class="review-options">${optionsHtml}</div>
-        ${unanswered ? '<p class="review-unanswered-note">未回答</p>' : ""}
+        ${note}
       </div>
     `;
   }).join("");
@@ -748,7 +768,8 @@ async function sendResultToSheet(result) {
 
 function submitTest({ force = false } = {}) {
   if (!force && state.answers.size < QUESTIONS.length) {
-    missingMessage.textContent = `未回答が ${QUESTIONS.length - state.answers.size} 問あります。すべて回答してから採点できます。`;
+    const remaining = QUESTIONS.length - state.answers.size;
+    missingMessage.textContent = `まだ ${remaining} 問が残っています。回答するか「わからない」を押してください。`;
     return;
   }
   clearInterval(state.timerId);
@@ -790,6 +811,26 @@ function downloadCsv() {
 renderQuestions();
 
 quizForm.addEventListener("click", (event) => {
+  const skipBtn = event.target.closest(".skip-button");
+  if (skipBtn) {
+    const index = Number(skipBtn.dataset.skipIndex);
+    const card = skipBtn.closest(".question-card");
+    const radios = card.querySelectorAll("input[type='radio']");
+    if (state.answers.get(index) === "skip") {
+      state.answers.delete(index);
+      card.classList.remove("is-skipped");
+      skipBtn.textContent = "わからない";
+      radios.forEach((r) => { r.disabled = false; });
+    } else {
+      state.answers.set(index, "skip");
+      card.classList.add("is-skipped");
+      skipBtn.textContent = "やっぱり答える";
+      radios.forEach((r) => { r.checked = false; r.disabled = true; });
+    }
+    missingMessage.textContent = "";
+    updateProgress();
+    return;
+  }
   const button = event.target.closest(".listen-button");
   if (!button) return;
   playListeningQuestion(Number(button.dataset.audioIndex));
