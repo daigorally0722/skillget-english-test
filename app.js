@@ -844,7 +844,18 @@ quizForm.addEventListener("change", (event) => {
   updateProgress();
 });
 
+document.querySelector("#participant-name").addEventListener("input", () => {
+  const btn = document.querySelector("#start-button");
+  const hasName = document.querySelector("#participant-name").value.trim().length > 0;
+  btn.disabled = !hasName;
+  btn.style.opacity = hasName ? "" : "0.4";
+  btn.style.cursor = hasName ? "" : "not-allowed";
+});
+
 document.querySelector("#start-button").addEventListener("click", () => {
+  const name = document.querySelector("#participant-name").value.trim();
+  if (!name) return;
+
   if (globalAudio) {
     globalAudio.pause();
     globalAudio.currentTime = 0;
